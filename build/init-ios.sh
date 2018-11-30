@@ -17,8 +17,8 @@
 #
 
 # IJK_FFMPEG_UPSTREAM=git://git.videolan.org/ffmpeg.git
-IJK_FFMPEG_UPSTREAM=http://code.10000.com/Media/ffmpeg.git
-IJK_FFMPEG_FORK=http://code.10000.com/Media/ffmpeg.git
+IJK_FFMPEG_UPSTREAM=git@code.10000.com:Media/ffmpeg.git
+IJK_FFMPEG_FORK=git@code.10000.com:Media/ffmpeg.git
 IJK_FFMPEG_COMMIT=ff3.4--zentel
 IJK_FFMPEG_LOCAL_REPO=../ffmpeg
 
@@ -37,7 +37,7 @@ TOOLS=tools
 
 FF_ALL_ARCHS_IOS6_SDK="armv7 armv7s i386"
 FF_ALL_ARCHS_IOS7_SDK="armv7 armv7s arm64 i386 x86_64"
-FF_ALL_ARCHS_IOS8_SDK="armv7 arm64 i386 x86_64"
+FF_ALL_ARCHS_IOS8_SDK="arm64 i386 x86_64"
 FF_ALL_ARCHS=$FF_ALL_ARCHS_IOS8_SDK
 FF_TARGET=$1
 

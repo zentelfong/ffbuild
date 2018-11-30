@@ -15,15 +15,9 @@
 # limitations under the License.
 #
 
-# This script is based on projects below
-# https://github.com/yixia/FFmpeg-Android
-# http://git.videolan.org/?p=vlc-ports/android.git;a=summary
-# export ANDROID_NDK=/Users/binxu/Documents/Android/android-ndk-r14b
-
 #----------
 UNI_BUILD_ROOT=`pwd`
 FF_TARGET=$1
-FF_TARGET_EXTRA=$2
 set -e
 set +x
 
@@ -42,19 +36,22 @@ echo_archs() {
 
 echo_usage() {
     echo "Usage:"
-    echo "  compile-ffmpeg.sh armv5|armv7a|arm64|x86|x86_64"
-    echo "  compile-ffmpeg.sh all|all32"
-    echo "  compile-ffmpeg.sh all64"
-    echo "  compile-ffmpeg.sh clean"
-    echo "  compile-ffmpeg.sh check"
+    echo "  compile-openssl.sh armv5|armv7a|arm64|x86|x86_64"
+    echo "  compile-openssl.sh all|all32"
+    echo "  compile-openssl.sh all64"
+    echo "  compile-openssl.sh clean"
+    echo "  compile-openssl.sh check"
     exit 1
 }
 
 echo_nextstep_help() {
+    #----------
     echo ""
     echo "--------------------"
     echo "[*] Finished"
     echo "--------------------"
+    echo "# to continue to build ffmpeg, run script below,"
+    echo "sh compile-ffmpeg.sh "
     echo "# to continue to build ijkplayer, run script below,"
     echo "sh compile-ijk.sh "
 }
@@ -63,18 +60,18 @@ echo_nextstep_help() {
 case "$FF_TARGET" in
     "")
         echo_archs armv7a
-        sh tools/do-compile-ffmpeg.sh armv7a
+        sh tools/do-compile-openssl.sh armv7a
     ;;
     armv5|armv7a|arm64|x86|x86_64)
-        echo_archs $FF_TARGET $FF_TARGET_EXTRA
-        sh tools/do-compile-ffmpeg.sh $FF_TARGET $FF_TARGET_EXTRA
+        echo_archs $FF_TARGET
+        sh tools/do-compile-openssl.sh $FF_TARGET
         echo_nextstep_help
     ;;
     all32)
         echo_archs $FF_ACT_ARCHS_32
         for ARCH in $FF_ACT_ARCHS_32
         do
-            sh tools/do-compile-ffmpeg.sh $ARCH $FF_TARGET_EXTRA
+            sh tools/do-compile-openssl.sh $ARCH
         done
         echo_nextstep_help
     ;;
@@ -82,7 +79,7 @@ case "$FF_TARGET" in
         echo_archs $FF_ACT_ARCHS_64
         for ARCH in $FF_ACT_ARCHS_64
         do
-            sh tools/do-compile-ffmpeg.sh $ARCH $FF_TARGET_EXTRA
+            sh tools/do-compile-openssl.sh $ARCH
         done
         echo_nextstep_help
     ;;
@@ -90,11 +87,11 @@ case "$FF_TARGET" in
         echo_archs FF_ACT_ARCHS_64
         for ARCH in $FF_ACT_ARCHS_ALL
         do
-            if [ -d ffmpeg-$ARCH ]; then
-                cd ffmpeg-$ARCH && git clean -xdf && cd -
+            if [ -d openssl-$ARCH ]; then
+                cd openssl-$ARCH && git clean -xdf && cd -
             fi
         done
-        rm -rf ./build/ffmpeg-*
+        rm -rf ./build/openssl-*
     ;;
     check)
         echo_archs FF_ACT_ARCHS_ALL

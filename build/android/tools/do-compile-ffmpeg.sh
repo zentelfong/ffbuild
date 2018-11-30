@@ -260,6 +260,10 @@ fi
 
 FF_CFG_FLAGS="$FF_CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 
+#media codec ndk
+FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-encoder=h264_mediacodecndk --enable-decoder=h264_mediacodecndk --enable-mediacodecndk"
+
+
 #--------------------
 # Standard options:
 FF_CFG_FLAGS="$FF_CFG_FLAGS --prefix=$FF_PREFIX"

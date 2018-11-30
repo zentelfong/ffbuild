@@ -1,0 +1,3 @@
+[submodule "ffmpeg"]
+	path = ffmpeg
+	url = http://code.10000.com/Media/ffmpeg.git

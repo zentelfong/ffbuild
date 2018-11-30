@@ -1,3 +1,7 @@
 [submodule "ffmpeg"]
 	path = ffmpeg
-	url = http://code.10000.com/Media/ffmpeg.git
+	url = git@code.10000.com:Media/ffmpeg.git
+
+[submodule "openssl"]
+	path = openssl
+	url = https://github.com/Bilibili/openssl.git

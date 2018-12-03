@@ -8,6 +8,7 @@ ffmpeg-x86_64
 openssl-armv7a
 openssl-arm64
 openssl-armv7
+openssl-armv7s
 openssl-i386
 openssl-x86_64
 fdk_aac

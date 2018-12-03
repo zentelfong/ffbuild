@@ -205,10 +205,37 @@ FFMPEG_DEP_OPENSSL_LIB=$FF_BUILD_ROOT/build/$FF_BUILD_NAME_OPENSSL/output/lib
 #--------------------
 # with openssl
 if [ -f "${FFMPEG_DEP_OPENSSL_LIB}/libssl.a" ]; then
+    echo "openssl detected"
+
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-openssl"
 
     FFMPEG_CFLAGS="$FFMPEG_CFLAGS -I${FFMPEG_DEP_OPENSSL_INC}"
     FFMPEG_DEP_LIBS="$FFMPEG_CFLAGS -L${FFMPEG_DEP_OPENSSL_LIB} -lssl -lcrypto"
+fi
+
+
+#exlib
+FF_DEP_AAC_LIB=$FF_BUILD_ROOT/fdk_aac/$FF_ARCH
+if [ -f "${FF_DEP_AAC_LIB}/lib/libfdk-aac.a" ]; then
+    echo "libfdk-aac detected"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libfdk_aac --enable-decoder=libfdk_aac --enable-encoder=libfdk_aac"
+    
+    FFMPEG_CFLAGS="$FFMPEG_CFLAGS -I${FF_DEP_AAC_LIB}/include"
+    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS -L${FF_DEP_AAC_LIB}/lib -lfdk-aac"
+fi
+
+FF_DEP_X264_LIB=$FF_BUILD_ROOT/libx264/$FF_ARCH
+if [ -f "${FF_DEP_X264_LIB}/lib/libx264.a" ]; then
+    echo "libx264 detected"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libx264 --enable-encoder=libx264"
+
+    FFMPEG_CFLAGS="$FFMPEG_CFLAGS -I${FF_DEP_X264_LIB}/include"
+    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS -L${FF_DEP_X264_LIB}/lib -lx264"
+fi
+
+#toolbox 编解码器
+if [ "$FF_ARCH" = "arm64" ]; then
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-videotoolbox --enable-encoder=h264_videotoolbox --enable-endecoder=h264_videotoolbox"
 fi
 
 #--------------------

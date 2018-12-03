@@ -1,6 +1,20 @@
 #!/bin/bash -e
 #
-
+# build_android.sh
+# Copyright (c) 2012 Jacek Marchwicki
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# export ANDROID_NDK_HOME=/Users/binxu/Documents/Android/android-ndk-r14b
 set -x
 
 if [ "$ANDROID_NDK_HOME" = "" ]; then
@@ -59,7 +73,7 @@ function setup_paths
 	export STRIP="${CROSS_COMPILE}strip"
 	export RANLIB="${CROSS_COMPILE}ranlib"
 	export AR="${CROSS_COMPILE}ar"
-	export LDFLAGS="-Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -llog"
+	export LDFLAGS="-Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -llog -lgcc"
 	export PKG_CONFIG_LIBDIR=$PREFIX/lib/pkgconfig/
 	export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig/
 
@@ -67,30 +81,13 @@ function setup_paths
 		echo "Gcc does not exists in path: ${CROSS_COMPILE}gcc"
 		exit 1;
 	fi
-
-	if [ ! -f "${PKG_CONFIG}" ]; then
-		echo "Pkg config does not exists in path: ${PKG_CONFIG} - Probably BUG in NDK but..."
-		set +e
-		SYS_PKG_CONFIG=$(which pkg-config)
-		if [ "$?" -ne 0 ]; then
-			echo "This system does not contain system pkg-config, so we can do anything"
-			exit 1
-		fi
-		set -e
-		cat > $PKG_CONFIG << EOF
-#!/bin/bash
-pkg-config \$*
-EOF
-		chmod u+x $PKG_CONFIG
-		echo "Because we have local pkg-config we will create it in ${PKG_CONFIG} directory using ${SYS_PKG_CONFIG}"
-	fi
 }
 
 function build_x264
 {
 	echo "Starting build x264 for $ARCH"
 	cd x264
-	./configure --prefix=$PREFIX --host=$ARCH-linux --enable-static $ADDITIONAL_CONFIGURE_FLAG
+	./configure --prefix=$PREFIX --host=$ARCH-linux --enable-static --enable-pic -march=armv7-a -mfloat-abi=softfp -mfpu=neon $ADDITIONAL_CONFIGURE_FLAG
 
 	make clean
 	make -j4 install
@@ -99,10 +96,11 @@ function build_x264
 	echo "FINISHED x264 for $ARCH"
 }
 
+
 function build_aac
 {
 	echo "Starting build aac for $ARCH"
-	cd vo-aacenc
+	cd fdk_aac
 	./configure \
 	    --prefix=$PREFIX \
 	    --host=$ARCH-linux \
@@ -119,47 +117,74 @@ function build_aac
 	echo "FINISHED aac for $ARCH"
 }
 
+function build_lame
+{
+	echo "Starting build lame for $ARCH"
+	cd lame
+	./configure \
+	    --prefix=$PREFIX \
+	    --host=$ARCH-linux \
+	    --disable-shared \
+	    --enable-static \
+	    --with-pic \
+	    $ADDITIONAL_CONFIGURE_FLAG
+
+	make clean
+	make -j4 install
+	make clean
+	cd ..
+	echo "FINISHED aac for $ARCH"
+}
 
 
-#arm v5
-# EABIARCH=arm-linux-androideabi
-# ARCH=arm
-# CPU=armv5
-# OPTIMIZE_CFLAGS="-marm -march=$CPU"
-# PREFIX=$(pwd)/build/android/ffmpeg-armv5/output
-# ADDITIONAL_CONFIGURE_FLAG=
-# PREBUILT=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-$COMPILATOR_VERSION/prebuilt/$OS_ARCH
-# PLATFORM_VERSION=android-5
-# setup_paths
-# build_x264
-# build_aac
+#arm v7 + neon (neon also include vfpv3-32)
+EABIARCH=arm-linux-androideabi
+ARCH=arm
+CPU=armv7-a
+OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=neon -marm -march=$CPU -mtune=cortex-a8 -mthumb -D__thumb__ "
+PREFIX=$(pwd)/build/android/build/exlib/armv7a
+ADDITIONAL_CONFIGURE_FLAG=--enable-neon
+PREBUILT=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-$COMPILATOR_VERSION/prebuilt/$OS_ARCH
+PLATFORM_VERSION=android-14
+setup_paths
+build_aac
+# build_lame
+build_x264
 
 
 #x86
 # EABIARCH=i686-linux-android
 # ARCH=x86
 # OPTIMIZE_CFLAGS="-m32"
-# PREFIX=$(pwd)/build/android/ffmpeg-x86/output
+# PREFIX=$(pwd)/ffmpeg-build/x86
+# OUT_LIBRARY=$PREFIX/libffmpeg.so
 # ADDITIONAL_CONFIGURE_FLAG=--disable-asm
+# SONAME=libffmpeg.so
 # PREBUILT=$ANDROID_NDK_HOME/toolchains/x86-$COMPILATOR_VERSION/prebuilt/$OS_ARCH
-# PLATFORM_VERSION=android-9
+# PLATFORM_VERSION=android-14
 # setup_paths
-# setup_paths
-# build_x264
 # build_aac
+# build_lame
+# build_x264
+# build_ffmpeg
+# build_one
 
+#mips
+# EABIARCH=mipsel-linux-android
+# ARCH=mips
+# OPTIMIZE_CFLAGS="-EL -march=mips32 -mips32 -mhard-float"
+# PREFIX=$(pwd)/ffmpeg-build/mips
+# OUT_LIBRARY=$PREFIX/libffmpeg.so
+# ADDITIONAL_CONFIGURE_FLAG="--disable-mips32r2"
+# SONAME=libffmpeg.so
+# PREBUILT=$ANDROID_NDK_HOME/toolchains/mipsel-linux-android-$COMPILATOR_VERSION/prebuilt/$OS_ARCH
+# PLATFORM_VERSION=android-14
+# setup_paths
+# build_aac
+# build_lame
+# build_x264
+# build_ffmpeg
+# build_one
 
-#arm v7
-EABIARCH=arm-linux-androideabi
-ARCH=arm
-CPU=armv7-a
-OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=neon -marm -march=$CPU -mtune=cortex-a8 -mthumb -D__thumb__ "
-PREFIX=$(pwd)/build/android/ffmpeg-armv7a/output
-ADDITIONAL_CONFIGURE_FLAG=--enable-neon
-PREBUILT=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-$COMPILATOR_VERSION/prebuilt/$OS_ARCH
-PLATFORM_VERSION=android-9
-setup_paths
-build_x264
-build_aac
 
 echo "BUILD SUCCESS"

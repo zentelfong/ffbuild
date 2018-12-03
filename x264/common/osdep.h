@@ -43,10 +43,10 @@
 #include <math.h>
 #endif
 
-#if !HAVE_LOG2F
+//#if !HAVE_LOG2F
 #define log2f(x) (logf(x)/0.693147180559945f)
 #define log2(x) (log(x)/0.693147180559945)
-#endif
+//#endif
 
 #ifdef _MSC_VER
 #define inline __inline

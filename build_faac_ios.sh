@@ -1,16 +1,16 @@
 #!/bin/sh
 
-CONFIGURE_FLAGS="--enable-static --enable-pic --disable-cli"
+CONFIGURE_FLAGS="--enable-static --with-pic=yes --disable-shared"
 
-ARCHS="arm64 x86_64 i386 armv7 armv7s"
+ARCHS="arm64 x86_64 i386"
 
 # directories
 SOURCE="fdk_aac"
-FAT="build/ios/universal"
+FAT="build/ios/build/universal"
 
-SCRATCH="scratch-faac"
+SCRATCH="scratch"
 # must be an absolute path
-THIN=`pwd`/"thin-faac"
+THIN=`pwd`/"build/ios/fdk_aac"
 
 COMPILE="y"
 LIPO="y"
@@ -39,8 +39,8 @@ then
 		echo "building $ARCH..."
 		mkdir -p "$SCRATCH/$ARCH"
 		cd "$SCRATCH/$ARCH"
+
 		CFLAGS="-arch $ARCH"
-                ASFLAGS=
 
 		if [ "$ARCH" = "i386" -o "$ARCH" = "x86_64" ]
 		then
@@ -49,39 +49,42 @@ then
 		    if [ "$ARCH" = "x86_64" ]
 		    then
 		    	CFLAGS="$CFLAGS -mios-simulator-version-min=7.0"
-		    	HOST=
+			HOST="--host=x86_64-apple-darwin"
 		    else
-		    	CFLAGS="$CFLAGS -mios-simulator-version-min=5.0"
-				HOST="--host=i386-apple-darwin"
+		    	CFLAGS="$CFLAGS -mios-simulator-version-min=7.0"
+			HOST="--host=i386-apple-darwin"
 		    fi
 		else
 		    PLATFORM="iPhoneOS"
-		    if [ $ARCH = "arm64" ]
+		    if [ $ARCH = arm64 ]
 		    then
 		        HOST="--host=aarch64-apple-darwin"
-				XARCH="-arch aarch64"
-		    else
+                    else
 		        HOST="--host=arm-apple-darwin"
-				XARCH="-arch arm"
-		    fi
-			CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=7.0"
-			ASFLAGS="$CFLAGS"
+	            fi
+		    CFLAGS="$CFLAGS -fembed-bitcode"
 		fi
 
 		XCRUN_SDK=`echo $PLATFORM | tr '[:upper:]' '[:lower:]'`
-		CC="xcrun -sdk $XCRUN_SDK clang"
+		CC="xcrun -sdk $XCRUN_SDK clang -Wno-error=unused-command-line-argument-hard-error-in-future"
+		AS="$CWD/$SOURCE/extras/gas-preprocessor.pl $CC"
 		CXXFLAGS="$CFLAGS"
 		LDFLAGS="$CFLAGS"
 
-		CC=$CC $CWD/$SOURCE/configure \
+		$CWD/$SOURCE/configure \
 		    $CONFIGURE_FLAGS \
 		    $HOST \
-		    --extra-cflags="$CFLAGS" \
-		    --extra-asflags="$ASFLAGS" \
-		    --extra-ldflags="$LDFLAGS" \
-		    --prefix="$THIN/$ARCH" || exit 1
+		    $CPU \
+		    CC="$CC" \
+		    CXX="$CC" \
+		    CPP="$CC -E" \
+                    AS="$AS" \
+		    CFLAGS="$CFLAGS" \
+		    LDFLAGS="$LDFLAGS" \
+		    CPPFLAGS="$CFLAGS" \
+		    --prefix="$THIN/$ARCH"
 
-		make -j3 install || exit 1
+		make -j3 install
 		cd $CWD
 	done
 fi

@@ -260,6 +260,26 @@ fi
 
 FF_CFG_FLAGS="$FF_CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 
+#exlib
+FF_DEP_EX_LIB=$FF_BUILD_ROOT/build/exlib/$FF_ARCH
+FF_DEP_LIBS="$FF_DEP_LIBS -L${FF_DEP_EX_LIB}/lib"
+
+if [ -f "${FF_DEP_EX_LIB}/lib/libfdk-aac.a" ]; then
+    echo "libfdk-aac detected"
+    FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-libfdk_aac --enable-decoder=libfdk_aac --enable-encoder=libfdk_aac"
+    FF_CFLAGS="$FF_CFLAGS -I${FF_DEP_EX_LIB}/include"
+    FF_DEP_LIBS="$FF_DEP_LIBS -lfdk-aac"
+fi
+
+
+if [ -f "${FF_DEP_EX_LIB}/lib/libx264.a" ]; then
+    echo "libx264 detected"
+    FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-libx264 --enable-encoder=libx264"
+
+    FF_CFLAGS="$FF_CFLAGS -I${FF_DEP_EX_LIB}/include"
+    FF_DEP_LIBS="$FF_DEP_LIBS -lx264"
+fi
+
 #media codec ndk
 FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-encoder=h264_mediacodecndk --enable-decoder=h264_mediacodecndk --enable-mediacodecndk"
 

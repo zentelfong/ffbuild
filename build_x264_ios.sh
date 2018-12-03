@@ -2,15 +2,15 @@
 
 CONFIGURE_FLAGS="--enable-static --enable-pic --disable-cli"
 
-ARCHS="arm64 x86_64 i386 armv7 armv7s"
+ARCHS="arm64 x86_64 i386"
 
 # directories
 SOURCE="x264"
-FAT="build/ios/universal"
+FAT="build/ios/build/universal"
 
 SCRATCH="scratch-x264"
 # must be an absolute path
-THIN=`pwd`/"thin-x264"
+THIN=`pwd`/"build/ios/libx264"
 
 COMPILE="y"
 LIPO="y"
@@ -40,7 +40,7 @@ then
 		mkdir -p "$SCRATCH/$ARCH"
 		cd "$SCRATCH/$ARCH"
 		CFLAGS="-arch $ARCH"
-                ASFLAGS=
+        ASFLAGS=
 
 		if [ "$ARCH" = "i386" -o "$ARCH" = "x86_64" ]
 		then
@@ -52,20 +52,21 @@ then
 		    	HOST=
 		    else
 		    	CFLAGS="$CFLAGS -mios-simulator-version-min=5.0"
-			HOST="--host=i386-apple-darwin"
+			    HOST="--host=i386-apple-darwin"
 		    fi
+            CONFIGURE_FLAGS="$CONFIGURE_FLAGS --disable-asm"
 		else
 		    PLATFORM="iPhoneOS"
 		    if [ $ARCH = "arm64" ]
 		    then
 		        HOST="--host=aarch64-apple-darwin"
-			XARCH="-arch aarch64"
+			    XARCH="-arch aarch64"
 		    else
 		        HOST="--host=arm-apple-darwin"
-			XARCH="-arch arm"
+                XARCH="-arch arm"
 		    fi
-                    CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=7.0"
-                    ASFLAGS="$CFLAGS"
+            CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=7.0"
+            ASFLAGS="$CFLAGS"
 		fi
 
 		XCRUN_SDK=`echo $PLATFORM | tr '[:upper:]' '[:lower:]'`

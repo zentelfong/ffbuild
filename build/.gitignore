@@ -1,0 +1,17 @@
+libs
+obj
+build
+ffmpeg-armv7a
+ffmpeg-arm64
+ffmpeg-i386
+ffmpeg-x86_64
+openssl-armv7a
+openssl-arm64
+openssl-armv7
+openssl-i386
+openssl-x86_64
+fdk_aac
+libx264
+
+
+

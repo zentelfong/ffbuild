@@ -36,7 +36,7 @@ function pull_fork()
 
     sh $TOOLS/pull-repo-ref.sh $IJK_FFMPEG_FORK android/ffmpeg-$1 ${IJK_FFMPEG_LOCAL_REPO}
     cd android/ffmpeg-$1
-    #git checkout ${IJK_FFMPEG_COMMIT}
+    git checkout ${IJK_FFMPEG_COMMIT}
     cd -
 }
 

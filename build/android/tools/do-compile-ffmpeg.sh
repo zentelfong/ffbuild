@@ -282,6 +282,7 @@ fi
 
 #media codec ndk
 FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-encoder=h264_mediacodecndk --enable-decoder=h264_mediacodecndk --enable-mediacodecndk"
+FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-jni --enable-mediacodec --enable-decoder=h264_mediacodec --enable-hwaccel=h264_mediacodec"
 
 
 #--------------------
@@ -291,7 +292,7 @@ FF_CFG_FLAGS="$FF_CFG_FLAGS --prefix=$FF_PREFIX"
 # Advanced options (experts only):
 FF_CFG_FLAGS="$FF_CFG_FLAGS --cross-prefix=${FF_CROSS_PREFIX}-"
 FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-cross-compile"
-FF_CFG_FLAGS="$FF_CFG_FLAGS --target-os=linux"
+FF_CFG_FLAGS="$FF_CFG_FLAGS --target-os=android"
 FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-pic"
 # FF_CFG_FLAGS="$FF_CFG_FLAGS --disable-symver"
 
